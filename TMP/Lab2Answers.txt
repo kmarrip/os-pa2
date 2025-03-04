@@ -1,0 +1,16 @@
+1.
+i) One approach is to increase the priority of task holding the task proportional to the time its has been holding the task,
+everytime resched is called in for, based on the waiting time for the task on a lock, its priority is proportionally increased.
+This way the lower priority tasks which hold the shared resources wont be sitting there for a lot of time.
+
+2.
+The main problem that might be faced here are
+
+Reader - Writer conflict leading to a race conditions:
+The read buffer is shared memeory and rmutex doesn't cover it, there is a possiblility that the reader could do a dirty read
+or when the writing is midway through the write operation, a read could happen.
+This simply implies that there is no mutual exclusion between read() and write();
+
+
+I coudln't really complete this assignment, I have had lot of things on my plate these couple of weeks.
+I'm submitting everything I worked on
