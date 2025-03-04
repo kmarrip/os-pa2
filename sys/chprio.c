@@ -14,6 +14,9 @@ SYSCALL chprio(int pid, int newprio)
 {
 	STATWORD ps;    
 	struct	pentry	*pptr;
+	struct lentry *lptr;
+	int lockDescriptor;
+
 
 	disable(ps);
 	if (isbadpid(pid) || newprio<=0 ||
@@ -21,7 +24,20 @@ SYSCALL chprio(int pid, int newprio)
 		restore(ps);
 		return(SYSERR);
 	}
-	pptr->pprio = newprio;
+	if(newprio > pptr->pprio){
+		pptr-> pinh = newprio;
+	}else{
+		pptr -> pprio = newprio;
+		pptr -> pinh = 0;
+	}
+
+	ld = checkProcessTransitivityForPI(pid);
+	if (ld != -1)
+	{
+		lptr = &rw_locks[ld];
+		lptr->lprio = getMaxPriorityInLockWQ(ld);
+		rampUpProcPriority(ld,-1);	
+	} 
 	restore(ps);
 	return(newprio);
 }

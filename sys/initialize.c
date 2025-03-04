@@ -13,6 +13,7 @@
 #include <q.h>
 #include <io.h>
 #include <stdio.h>
+#include <lock.h>
 
 /*#define DETAIL */
 #define HOLESIZE	(600)	
@@ -31,7 +32,7 @@ LOCAL   int	sysinit();
 struct	pentry	proctab[NPROC]; /* process table			*/
 int	nextproc;		/* next process slot to use in create	*/
 struct	sentry	semaph[NSEM];	/* semaphore table			*/
-int	nextsem;		/* next sempahore slot to use in screate*/
+int	nextsem;		/* next sempahore slot to use in screate*/		
 struct	qent	q[NQENT];	/* q table (see queue.c)		*/
 int	nextqueue;		/* next slot in q structure to use	*/
 char	*maxaddr;		/* max memory address (set by sizmem)	*/
@@ -48,6 +49,7 @@ int	console_dev;		/* console device			*/
 
 int	rdyhead, rdytail;	/* head/tail of ready list (q indicies)	*/
 char	vers[100];		/* Xinu version printed at startup	*/
+int 	nextlock;
 
 /************************************************************************/
 /***				NOTE:				      ***/
@@ -112,7 +114,7 @@ int nulluser()				/* babysit CPU when no one home */
 	open(CONSOLE, console_dev, 0);
 
 	/* create a process to execute the user's main program */
-        resume(create((int *)main,INITSTK,INITPRIO,INITNAME,INITARGS));
+	resume(create((int *)main,INITSTK,INITPRIO,INITNAME,INITARGS));
 
 	while (TRUE)
 		/* empty */;
@@ -178,6 +180,7 @@ LOCAL int sysinit()
 	}
 
 	rdytail = 1 + (rdyhead=newqueue());/* initialize ready list */
+	lockinit(); // start the lock descriptors 
 
 #ifdef	MEMMARK
 	_mkinit();			/* initialize memory marking */
